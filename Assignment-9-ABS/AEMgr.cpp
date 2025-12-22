@@ -154,7 +154,7 @@ AEState AbstractExecutionMgr::test4()
     NodeID malloc = getNodeID("malloc");
     as[p] = AddressValue(getMemObjAddress(malloc)); 
     as[x] = AddressValue(as.getGepObjAddrs(malloc,IntervalValue(0,0)));
-    as[y] = AddressValue(getMemObjAddress(malloc,IntervalValue(1,1)));  
+    as[y] = AddressValue(as.getGepObjAddrs(malloc,IntervalValue(1,1)));  
     as.storeValue(x, IntervalValue(10,10)); 
     as.storeValue(y, IntervalValue(11,11)); 
     as[a] = as.loadValue(x); 
