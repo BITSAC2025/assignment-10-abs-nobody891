@@ -153,8 +153,8 @@ AEState AbstractExecutionMgr::test4()
     //@{
     NodeID malloc = getNodeID("malloc");
     as[p] = AddressValue(getMemObjAddress(malloc)); 
-    as[x] = AddressValue(getMemObjAddress(malloc,0));
-    as[y] = AddressValue(getMemObjAddress(malloc,1));  
+    as[x] = AddressValue(as.getGepObjAddrs(malloc,IntervalValue(0,0)));
+    as[y] = AddressValue(getMemObjAddress(malloc,IntervalValue(1,1)));  
     as.storeValue(x, IntervalValue(10,10)); 
     as.storeValue(y, IntervalValue(11,11)); 
     as[a] = as.loadValue(x); 
@@ -203,9 +203,9 @@ AEState AbstractExecutionMgr::test5()
     as[p] = AddressValue(getMemObjAddress("malloc1")); 
     as[x] = AddressValue(getMemObjAddress("malloc2")); 
     as.storeValue(x, IntervalValue(5,5));
-    as[q] = AddressValue(as.getGepObjAddrs(malloc1,IntervalValue(0)));
+    as[q] = AddressValue(as.getGepObjAddrs(malloc1,IntervalValue(0,0)));
     as.storeValue(q,IntervalValue(10,10)); 
-    as[r] = AddressValue(as.getGepObjAddrs(malloc1,IntervalValue(1))); 
+    as[r] = AddressValue(as.getGepObjAddrs(malloc1,IntervalValue(1,1))); 
     as.storeValue(r,as[x]);
     as[y] = as.loadValue(r);
     as[z] = as.loadValue(q).getInterval() + as.loadValue(y).getInterval();  
