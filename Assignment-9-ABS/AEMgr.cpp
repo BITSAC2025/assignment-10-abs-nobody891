@@ -78,12 +78,12 @@ AEState AbstractExecutionMgr::test2()
     NodeID b = getNodeID("b");
     // TODO: put your code in the following braces
     //@{
-    as[p] = AddressValue(getMemObjAddress(malloc)); 
+    as[p] = AddressValue(getMemObjAddress("malloc")); 
     NodeID malloc = getNodeID("malloc"); 
     as.storeValue(p, IntervalValue(0,0)); 
     as[q] = as.loadValue(p); 
     as.storeValue(p, IntervalValue(3,3)); 
-    as[b] = as.loadValue(p) + IntervalValue(1,1); 
+    as[b] = as.loadValue(p).getInterval() + IntervalValue(1,1); 
 
     //@}
 
@@ -200,15 +200,15 @@ AEState AbstractExecutionMgr::test5()
     //@{
     NodeID malloc1 = getNodeID("malloc1"); 
     NodeID malloc2 = getNodeID("malloc2"); 
-    as[p] = AddressValue(getMemObjAddress(malloc1)); 
-    as[x] = AddressValue(getMemObjAddress(malloc2)); 
+    as[p] = AddressValue(getMemObjAddress("malloc1")); 
+    as[x] = AddressValue(getMemObjAddress("malloc2")); 
     as.storeValue(x, IntervalValue(5,5));
-    as[q] = AddressValue(getMemObjAddress(malloc1,0));
+    as[q] = AddressValue(getMemObjAddress("malloc1",0));
     as.storeValue(q,IntervalValue(10,10)); 
-    as[r] = AddressValue(getMemObjAddress(malloc1,1)); 
+    as[r] = AddressValue(getMemObjAddress("malloc1",1)); 
     as.storeValue(r,as[x]);
     as[y] = as.loadValue(r);
-    as[z] = as.loadValue(q) + as.loadValue(y);  
+    as[z] = as.loadValue(q).getInterval() + as.loadValue(y).getInterval();  
 
     //@}
 
@@ -238,7 +238,8 @@ AEState AbstractExecutionMgr::test6()
     as[b] = getInterval(5,5);
     AEState as_true = as; 
     AEState as_false = as; 
-    as_true_val = as_true[a].getInterval().meet_with(IntervalValue(11,INT_MAX)); 
+    as_true_val = as_true[a].getInterval()
+    as_true_val.meet_with(IntervalValue(11,INT_MAX)); 
     as_true[a] = as_true_val; 
     if (a_true_val.getLower() <= a_true_val.getUpper()) { // 检查是否非空
         // b = a;
@@ -247,7 +248,8 @@ AEState AbstractExecutionMgr::test6()
       
     }
     
-    IntervalValue a_false_val = as_false[a].getInterval().meet_with(IntervalValue(INT_MIN, 10));
+    IntervalValue a_false_val = as_false[a].getInterval()
+    a_false_val.meet_with(IntervalValue(INT_MIN, 10));
     as_false[a] = a_false_val;
     
     as.joinWith(as_true); 
@@ -307,36 +309,38 @@ AEState AbstractExecutionMgr::test8()
     NodeID x = getNodeID("x");
     // TODO: put your code in the following braces
     //@{
-    entry_as[x] = IntervalValue(20,20); 
+    entry_as[x] = IntervalValue(20, 20); 
     head_as = entry_as; 
     u32_t iter = 0; 
-    while(true){
+    while(true) {
         AEState old_head_as = head_as; 
         body_as = old_head_as; 
-        IntervalValue x_constrainted = body_as[x].getInterval().meet_with(IntervalValue(1,INT_MAX))；
-        body_as[x] = body_as[x].getInterval() - IntervalValue(-1,-1); 
+
+        // 1. 处理循环条件 x > 0
+        IntervalValue x_iv = body_as[x].getInterval();
+        x_iv.meet_with(IntervalValue(1, INT_MAX)); 
+        body_as[x] = x_iv;
+
+        // 2. 执行 x-- (即 x = x + [-1, -1])
+        body_as[x] = body_as[x].getInterval() + IntervalValue(-1, -1); 
+
+        // 3. 合并回 head
         head_as.joinWith(body_as); 
-        // 检查是否达到加宽延迟
+        
         if (iter >= widen_delay) {
-            // 加宽：H_{i+1} = H_i \nabla H_{i+1}'
             head_as.widening(old_head_as); 
-            // 注意：widening(old) 应该计算 old \nabla new，并将结果存回 head_as。
-            // 依赖于 API 实现，这里假设是 head_as.widening(old_head_as);
         }
         
-        // C. 检查收敛 (H_{i+1} == H_i)
-        // 假设 AEState 实现了 operator==
-        if (head_as == old_head_as) {
-            break; // 达到不动点，终止循环
-        }
-        exit_as = head_as; 
-        IntervalValue x_exit = exit_as[x].getInterval().meet_with(IntervalValue(INT_MIN, 0)); 
-        exit_as[x] = x_exit; 
-        
+        if (head_as == old_head_as) break; 
         iter++;
     }
-
+    exit_as = head_as; 
+    // 处理退出条件 x <= 0
+    IntervalValue x_exit_iv = exit_as[x].getInterval();
+    x_exit_iv.meet_with(IntervalValue(INT_MIN, 0));
+    exit_as[x] = x_exit_iv;
     //@}
+
 
     exit_as.printAbstractState();
     return exit_as;
