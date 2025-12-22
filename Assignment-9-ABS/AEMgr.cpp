@@ -203,9 +203,9 @@ AEState AbstractExecutionMgr::test5()
     as[p] = AddressValue(getMemObjAddress("malloc1")); 
     as[x] = AddressValue(getMemObjAddress("malloc2")); 
     as.storeValue(x, IntervalValue(5,5));
-    as[q] = AddressValue(getMemObjAddress(malloc1,0));
+    as[q] = AddressValue(as.getMemObjAddress(malloc1,0));
     as.storeValue(q,IntervalValue(10,10)); 
-    as[r] = AddressValue(getMemObjAddress(malloc1,1)); 
+    as[r] = AddressValue(as.getMemObjAddress(malloc1,1)); 
     as.storeValue(r,as[x]);
     as[y] = as.loadValue(r);
     as[z] = as.loadValue(q).getInterval() + as.loadValue(y).getInterval();  
