@@ -203,9 +203,9 @@ AEState AbstractExecutionMgr::test5()
     as[p] = AddressValue(getMemObjAddress("malloc1")); 
     as[x] = AddressValue(getMemObjAddress("malloc2")); 
     as.storeValue(x, IntervalValue(5,5));
-    as[q] = AddressValue(getMemObjAddress("malloc1",0));
+    as[q] = AddressValue(getMemObjAddress(malloc1,0));
     as.storeValue(q,IntervalValue(10,10)); 
-    as[r] = AddressValue(getMemObjAddress("malloc1",1)); 
+    as[r] = AddressValue(getMemObjAddress(malloc1,1)); 
     as.storeValue(r,as[x]);
     as[y] = as.loadValue(r);
     as[z] = as.loadValue(q).getInterval() + as.loadValue(y).getInterval();  
@@ -246,7 +246,7 @@ AEState AbstractExecutionMgr::test6()
     as_true_val.meet_with(IntervalValue(11, INT_MAX));
     as_true[a] = as_true_val;
 
-    if (as_true_val.getLower() <= as_true_val.getUpper()) {
+    if (as_true_val.lb() <= as_true_val.ub()) {
         // b = a;
         as_true[b] = as_true[a];
     }
@@ -336,7 +336,7 @@ AEState AbstractExecutionMgr::test8()
             break; // 达到不动点，终止循环
         }
         exit_as = head_as; 
-        IntervalValue x_exit = exit_as[x].getInterval().
+        IntervalValue x_exit = exit_as[x].getInterval();
         x_exit.meet_with(IntervalValue(INT_MIN, 0)); 
         exit_as[x] = x_exit; 
         
