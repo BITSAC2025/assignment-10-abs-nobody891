@@ -233,27 +233,30 @@ AEState AbstractExecutionMgr::test6()
     NodeID arg = getNodeID("arg");
     // TODO: put your code in the following braces
     //@{
-    NodeID arg = getNodeID("arg"); 
-    as[a] = as[arg].getInterval() + IntervalValue(1,1); 
-    as[b] = getInterval(5,5);
-    AEState as_true = as; 
-    AEState as_false = as; 
-    as_true_val = as_true[a].getInterval(); 
-    as_true_val.meet_with(IntervalValue(11,INT_MAX)); 
-    as_true[a] = as_true_val; 
-    if (a_true_val.getLower() <= a_true_val.getUpper()) { // 检查是否非空
+    // a = arg + 1;
+    as[a] = as[arg].getInterval() + IntervalValue(1, 1);
+    // b = 5;
+    as[b] = IntervalValue(5, 5); 
+
+    AEState as_true = as;
+    AEState as_false = as;
+
+    // if (a > 10)
+    IntervalValue as_true_val = as_true[a].getInterval();
+    as_true_val.meet_with(IntervalValue(11, INT_MAX));
+    as_true[a] = as_true_val;
+
+    if (as_true_val.getLower() <= as_true_val.getUpper()) {
         // b = a;
-        as_true[b] = as_true[a]; 
-    } else {
-      
+        as_true[b] = as_true[a];
     }
-    
+
     IntervalValue a_false_val = as_false[a].getInterval();
     a_false_val.meet_with(IntervalValue(INT_MIN, 10));
     as_false[a] = a_false_val;
-    
-    as.joinWith(as_true); 
-    as.joinWith(as_false);
+
+    as = as_true; // 重新初始化为 true 分支结果
+    as.joinWith(as_false); // 合并 false 分支
 
     //@}
 
@@ -315,8 +318,8 @@ AEState AbstractExecutionMgr::test8()
     while(true){
         AEState old_head_as = head_as; 
         body_as = old_head_as; 
-        IntervalValue x_constrainted = body_as[x].getInterval()
-        x_constrainted.meet_with(IntervalValue(1,INT_MAX))；
+        IntervalValue x_constrainted = body_as[x].getInterval();
+        x_constrainted.meet_with(IntervalValue(1,INT_MAX));
         body_as[x] = body_as[x].getInterval() - IntervalValue(-1,-1); 
         head_as.joinWith(body_as); 
         // 检查是否达到加宽延迟
