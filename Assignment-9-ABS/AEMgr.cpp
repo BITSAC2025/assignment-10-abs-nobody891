@@ -114,10 +114,6 @@ AEState AbstractExecutionMgr::test3()
     NodeID x = getNodeID("x");
     // TODO: put your code in the following braces
     //@{
-    '''NodeID malloc1 = getNodeID("malloc1"); 
-    NodeID malloc2 = getNodeID("malloc2"); 
-    as[p] = AddressValue(getMemObjAddress("malloc1")); 
-    as[q] = AddressValue(getMemObjAddress("malloc2")); '''
     NodeID malloc1 = getNodeID("malloc1"); 
     NodeID malloc2 = getNodeID("malloc2"); 
     as[p] = AddressValue(getMemObjAddress("malloc")); 
