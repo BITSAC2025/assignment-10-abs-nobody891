@@ -114,10 +114,14 @@ AEState AbstractExecutionMgr::test3()
     NodeID x = getNodeID("x");
     // TODO: put your code in the following braces
     //@{
-    NodeID malloc1 = getNodeID("malloc1"); 
+    '''NodeID malloc1 = getNodeID("malloc1"); 
     NodeID malloc2 = getNodeID("malloc2"); 
     as[p] = AddressValue(getMemObjAddress("malloc1")); 
-    as[q] = AddressValue(getMemObjAddress("malloc2")); 
+    as[q] = AddressValue(getMemObjAddress("malloc2")); '''
+    NodeID malloc1 = getNodeID("malloc1"); 
+    NodeID malloc2 = getNodeID("malloc2"); 
+    as[p] = AddressValue(getMemObjAddress("malloc")); 
+    as[q] = AddressValue(getMemObjAddress("malloc")); 
     as.storeValue(p,as[q]); 
     as.storeValue(q, IntervalValue(10,10)); 
     as[r] = as.loadValue(p); 
